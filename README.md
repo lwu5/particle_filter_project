@@ -35,3 +35,10 @@ Name: Suha Chang, Liuhao Wu
 - **Testing**: We will first confirm that particles are moving in the expected direction after the addition of noise (likely with large noise values to see the difference more clearly) and then fine tune the parameters of the Gaussian noise generator to make sure that we are not jittering the particle positions too far from their original position such that the particle cloud is compromised and the estimated position of the robot is very different from before the addition of noise. 
 
 ## Timeline
+- initialize_particle_cloud:  4/17
+- update_particles_with_motion_model:  4/17
+- update_particle_weights_with_measurement_model:  4/17
+- normalize_particles 4/17
+- resample_particles: 4/22
+- update_estimated_robot_pose: 4/22
+- noise: Wednesday 4/22
