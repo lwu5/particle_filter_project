@@ -41,4 +41,4 @@ Name: Suha Chang, Liuhao Wu
 - normalize_particles 4/17
 - resample_particles: 4/22
 - update_estimated_robot_pose: 4/22
-- noise: Wednesday 4/22
+- noise: 4/22
