@@ -6,7 +6,7 @@ Name: Suha Chang, Liuhao Wu
 ## Implementation + Testing
 1. How you will initialize your particle cloud (`initialize_particle_cloud`)?
 
-- **Implementation**: We will determine the position boundaries of the map and use a random function to generate a large sample of particles with coordinates that will be randomly distributed within that space. We will put those particle objects in the array particle_cloud.
+- **Implementation**: We will determine the position boundaries of the map and use a random function to generate a large sample of particles with coordinates that will be randomly distributed within that space. We will put those particle objects in the array `particle_cloud`.
 - **Testing**: Check the array length and visualize the particles on the map using rviz tools. We want to make sure that the particles are roughly randomly distributed across the empty spaces of the map.
 
 2. How you will update the position of the particles will be updated based on the movements of the robot (`update_particles_with_motion_model`)?
