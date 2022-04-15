@@ -20,6 +20,14 @@ from random import randint, random
 
 from likelihood_field import LikelihoodField
 
+def compute_prob_zero_centered_gaussian(dist, sd):
+    """ Takes in distance from zero (dist) and standard deviation (sd) for gaussian
+        and returns probability (likelihood) of observation """
+    c = 1.0 / (sd * math.sqrt(2 * math.pi))
+    prob = c * math.exp((-math.pow(dist,2))/(2 * math.pow(sd, 2)))
+    return prob
+
+
 def get_yaw_from_pose(p):
     """ A helper function that takes in a Pose object (geometry_msgs) and returns yaw"""
 
@@ -269,6 +277,8 @@ class ParticleFilter:
                 self.publish_particle_cloud()
                 self.publish_estimated_robot_pose()
 
+                self.likelihood_field = LikelihoodField()
+
                 self.odom_pose_last_motion_update = self.odom_pose
 
 
@@ -280,8 +290,23 @@ class ParticleFilter:
         return
 
     def update_particle_weights_with_measurement_model(self, data):
-        # TODO
-        return
+        cardinal_direction_idxs = [0, 90, 180, 270]
+        z_max = 0.0
+        ranges = data.ranges
+        for i in range(self.num_particles):
+            q = 1
+            x = self.particle_cloud[i].pose.position.x
+            y = self.particle_cloud[i].pose.position.y
+            yaw = get_yaw_from_pose(self.particle_cloud[i].pose)
+            
+            for k in cardinal_direction_idxs:
+                if ranges[k] != z_max:
+                    x_trans = x + ranges[k] * math.cos(yaw + k)
+                    y_trans = y + ranges[k] * math.sin(yaw + k)
+                    dist = self.likelihood_field.get_closest_obstacle_distance(x_trans, y_trans)
+                    q = q * compute_prob_zero_centered_gaussian(dist, 0.2)
+            
+            self.particle_cloud[i].w = q
         
     def update_particles_with_motion_model(self):
 
@@ -297,6 +322,8 @@ class ParticleFilter:
         diff_x = curr_x - old_x
         diff_y = curr_y - old_y
         diff_yaw = curr_yaw - old_yaw
+
+        # TODO need noise
 
         for i in range(self.num_particles):
             self.particle_cloud[i].pose.position.x += diff_x
