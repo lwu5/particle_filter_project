@@ -299,9 +299,14 @@ class ParticleFilter:
         diff_yaw = curr_yaw - old_yaw
 
         for i in range(self.num_particles):
-            self.particle_cloud[i].pose.x += diff_x
-            self.particle_cloud[i].pose.y += diff_y
-            self.particle_cloud[i].pose.yaw += diff_yaw
+            self.particle_cloud[i].pose.position.x += diff_x
+            self.particle_cloud[i].pose.position.y += diff_y
+            new_yaw = get_yaw_from_pose(self.odom_pose.pose) + diff_yaw
+            q = quaternion_from_euler(0.0, 0.0, new_yaw)
+            self.particle_cloud[i].pose.orientation.x = q[0]
+            self.particle_cloud[i].pose.orientation.y = q[1]
+            self.particle_cloud[i].pose.orientation.z = q[2]
+            self.particle_cloud[i].pose.orientation.w = q[3]
 
 
 if __name__=="__main__":
