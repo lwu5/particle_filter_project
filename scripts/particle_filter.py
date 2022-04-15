@@ -121,7 +121,7 @@ class ParticleFilter:
     
 
     def initialize_particle_cloud(self):
-        
+
         x_upper = self.map.info.width
         x_lower = 0
         y_upper = self.map.info.height
@@ -162,9 +162,13 @@ class ParticleFilter:
 
     def normalize_particles(self):
         # make all the particle weights sum to 1.0
-        
-        # TODO
+        w_tot = 0
 
+        for i in range(self.num_particles):
+            w_tot += self.particle_cloud[i].w
+        
+        for i in range(self.num_particles):
+            self.particle_cloud[i].w /= w_tot
 
 
     def publish_particle_cloud(self):
