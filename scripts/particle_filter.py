@@ -197,6 +197,7 @@ class ParticleFilter:
     def resample_particles(self):
 
         # TODO
+        return
 
 
 
@@ -276,23 +277,31 @@ class ParticleFilter:
         # based on the particles within the particle cloud, update the robot pose estimate
         
         # TODO
+        return
 
-
-    
     def update_particle_weights_with_measurement_model(self, data):
-
         # TODO
-
-
+        return
         
-
     def update_particles_with_motion_model(self):
 
         # based on the how the robot has moved (calculated from its odometry), we'll  move
         # all of the particles correspondingly
+        
+        curr_x = self.odom_pose.pose.position.x
+        old_x = self.odom_pose_last_motion_update.pose.position.x
+        curr_y = self.odom_pose.pose.position.y
+        old_y = self.odom_pose_last_motion_update.pose.position.y
+        curr_yaw = get_yaw_from_pose(self.odom_pose.pose)
+        old_yaw = get_yaw_from_pose(self.odom_pose_last_motion_update.pose)
+        diff_x = curr_x - old_x
+        diff_y = curr_y - old_y
+        diff_yaw = curr_yaw - old_yaw
 
-        # TODO
-
+        for i in range(self.num_particles):
+            self.particle_cloud[i].pose.x += diff_x
+            self.particle_cloud[i].pose.y += diff_y
+            self.particle_cloud[i].pose.yaw += diff_yaw
 
 
 if __name__=="__main__":
