@@ -18,7 +18,7 @@ import math
 
 from random import randint, random
 
-
+from likelihood_field import LikelihoodField
 
 def get_yaw_from_pose(p):
     """ A helper function that takes in a Pose object (geometry_msgs) and returns yaw"""
@@ -33,12 +33,11 @@ def get_yaw_from_pose(p):
     return yaw
 
 
-def draw_random_sample():
+def draw_random_sample(choices, weights, n):
     """ Draws a random sample of n elements from a given list of choices and their specified probabilities.
     We recommend that you fill in this function using random_sample.
     """
-    # TODO
-    return
+    return random.choices(choices, weights = weights, k = n)
 
 
 class Particle:
@@ -123,8 +122,38 @@ class ParticleFilter:
 
     def initialize_particle_cloud(self):
         
-        # TODO
+        x_upper = self.map.info.width
+        x_lower = 0
+        y_upper = self.map.info.height
+        y_lower = 0
+        resol = self.map.info.resolution
 
+        initial_particle_set = []
+        x_list = draw_random_sample(np.arange(x_lower, x_upper + resol, resol),None, self.num_particles)
+        y_list = draw_random_sample(np.arange(y_lower, y_upper + resol, resol),None, self.num_particles)
+        yaw_list = draw_random_sample(np.arange(0, 2 * math.pi, math.pi/180),None, self.num_particles)
+        
+        for i in range(self.num_particles):
+            initial_particle_set.append([x_list[i], y_list[i], yaw_list[i]])
+
+        for i in range(len(initial_particle_set)):
+            p = Pose()
+            p.position = Point()
+            p.position.x = initial_particle_set[i][0]
+            p.position.y = initial_particle_set[i][1]
+            p.position.z = 0
+            p.orientation = Quaternion()
+            q = quaternion_from_euler(0.0, 0.0, initial_particle_set[i][2])
+            p.orientation.x = q[0]
+            p.orientation.y = q[1]
+            p.orientation.z = q[2]
+            p.orientation.w = q[3]
+
+            # initialize the new particle, where all will have the same weight (1.0)
+            new_particle = Particle(p, 1.0)
+
+            # append the particle to the particle cloud
+            self.particle_cloud.append(new_particle)
 
         self.normalize_particles()
 
