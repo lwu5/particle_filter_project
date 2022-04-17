@@ -82,7 +82,7 @@ class ParticleFilter:
         self.map = OccupancyGrid()
 
         # the number of particles used in the particle filter
-        self.num_particles = 10000
+        self.num_particles = 2000
 
         # initialize the particle cloud array
         self.particle_cloud = []
@@ -137,7 +137,6 @@ class ParticleFilter:
         x_upper = self.map.info.width * resol + x_lower
         y_upper = self.map.info.height * resol + y_lower
 
-        initial_particle_set = []
         x_list = draw_random_sample(np.arange(x_lower, x_upper + resol, resol), None, self.num_particles)
         y_list = draw_random_sample(np.arange(y_lower, y_upper + resol, resol), None, self.num_particles)
         yaw_list = draw_random_sample(np.arange(0, 2 * math.pi, math.pi/180), None, self.num_particles)
@@ -190,7 +189,6 @@ class ParticleFilter:
 
 
 
-
     def publish_estimated_robot_pose(self):
 
         robot_pose_estimate_stamped = PoseStamped()
@@ -201,10 +199,20 @@ class ParticleFilter:
 
 
     def resample_particles(self):
+        
+        weights = []
 
-        # TODO
-        return
+        for i in range(self.num_particles):
+            weights.append(self.particle_cloud[i].w)
+        
+        new_particle_indexes = draw_random_sample(np.arrange(0, self.num_particles), weights, self.num_particles)
+        
+        new_particle_cloud = []
 
+        for i in new_particle_indexes:
+            new_particle_cloud.append(self.particle_cloud[i])
+        
+        self.particle_cloud = new_particle_cloud
 
 
     def robot_scan_received(self, data):
@@ -283,9 +291,23 @@ class ParticleFilter:
 
     def update_estimated_robot_pose(self):
         # based on the particles within the particle cloud, update the robot pose estimate
+        tot_x = 0
+        tot_y = 0
+        tot_yaw = 0
+
+        for p in self.particle_cloud:
+            tot_x += p.pose.position.x
+            tot_y += p.pose.position.y
+            tot_yaw += get_yaw_from_pose(p.pose)
         
-        # TODO
-        return
+        self.robot_estimate.pose.position.x = tot_x / self.num_particles
+        self.robot_estimate.pose.position.y = tot_y / self.num_particles
+        q = quaternion_from_euler(0.0, 0.0, tot_yaw / self.num_particles)
+        self.robot_estimate.pose.orientation.x = q[0]
+        self.robot_estimate.pose.orientation.y = q[1]
+        self.robot_estimate.pose.orientation.z = q[2]
+        self.robot_estimate.pose.orientation.w = q[3]
+            
 
     def update_particle_weights_with_measurement_model(self, data):
         cardinal_direction_idxs = [0, 90, 180, 270]
