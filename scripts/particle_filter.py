@@ -16,7 +16,7 @@ import numpy as np
 from numpy.random import random_sample
 import math
 
-from random import randint, random
+import random
 
 from likelihood_field import LikelihoodField
 
@@ -115,6 +115,7 @@ class ParticleFilter:
         self.tf_listener = TransformListener()
         self.tf_broadcaster = TransformBroadcaster()
 
+        rospy.sleep(1)
 
         # intialize the particle cloud
         self.initialize_particle_cloud()
@@ -130,28 +131,25 @@ class ParticleFilter:
 
     def initialize_particle_cloud(self):
 
-        x_upper = self.map.info.width
-        x_lower = 0
-        y_upper = self.map.info.height
-        y_lower = 0
         resol = self.map.info.resolution
+        x_lower = self.map.info.origin.position.x
+        y_lower = self.map.info.origin.position.y
+        x_upper = self.map.info.width * resol + x_lower
+        y_upper = self.map.info.height * resol + y_lower
 
         initial_particle_set = []
-        x_list = draw_random_sample(np.arange(x_lower, x_upper + resol, resol),None, self.num_particles)
-        y_list = draw_random_sample(np.arange(y_lower, y_upper + resol, resol),None, self.num_particles)
-        yaw_list = draw_random_sample(np.arange(0, 2 * math.pi, math.pi/180),None, self.num_particles)
-        
-        for i in range(self.num_particles):
-            initial_particle_set.append([x_list[i], y_list[i], yaw_list[i]])
+        x_list = draw_random_sample(np.arange(x_lower, x_upper + resol, resol), None, self.num_particles)
+        y_list = draw_random_sample(np.arange(y_lower, y_upper + resol, resol), None, self.num_particles)
+        yaw_list = draw_random_sample(np.arange(0, 2 * math.pi, math.pi/180), None, self.num_particles)
 
-        for i in range(len(initial_particle_set)):
+        for i in range(self.num_particles):
             p = Pose()
             p.position = Point()
-            p.position.x = initial_particle_set[i][0]
-            p.position.y = initial_particle_set[i][1]
+            p.position.x = x_list[i]
+            p.position.y = y_list[i]
             p.position.z = 0
             p.orientation = Quaternion()
-            q = quaternion_from_euler(0.0, 0.0, initial_particle_set[i][2])
+            q = quaternion_from_euler(0.0, 0.0, yaw_list[i])
             p.orientation.x = q[0]
             p.orientation.y = q[1]
             p.orientation.z = q[2]
