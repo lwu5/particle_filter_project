@@ -72,6 +72,9 @@ class ParticleFilter:
         # initialize this particle filter node
         rospy.init_node('turtlebot3_particle_filter')
 
+        # TODO comment
+        self.likelihood_field = LikelihoodField()
+
         # set the topic names and frame names
         self.base_frame = "base_footprint"
         self.map_topic = "map"
@@ -82,7 +85,7 @@ class ParticleFilter:
         self.map = OccupancyGrid()
 
         # the number of particles used in the particle filter
-        self.num_particles = 2000
+        self.num_particles = 100
 
         # initialize the particle cloud array
         self.particle_cloud = []
@@ -130,12 +133,9 @@ class ParticleFilter:
     
 
     def initialize_particle_cloud(self):
-
+        
+        ((x_lower, x_upper), (y_lower, y_upper)) = self.likelihood_field.get_obstacle_bounding_box()
         resol = self.map.info.resolution
-        x_lower = self.map.info.origin.position.x
-        y_lower = self.map.info.origin.position.y
-        x_upper = self.map.info.width * resol + x_lower
-        y_upper = self.map.info.height * resol + y_lower
 
         x_list = draw_random_sample(np.arange(x_lower, x_upper + resol, resol), None, self.num_particles)
         y_list = draw_random_sample(np.arange(y_lower, y_upper + resol, resol), None, self.num_particles)
@@ -204,13 +204,17 @@ class ParticleFilter:
 
         for i in range(self.num_particles):
             weights.append(self.particle_cloud[i].w)
+
+        print(weights)
         
-        new_particle_indexes = draw_random_sample(np.arrange(0, self.num_particles), weights, self.num_particles)
+        new_particle_indexes = draw_random_sample(np.arange(0, self.num_particles), weights, self.num_particles)
         
         new_particle_cloud = []
 
         for i in new_particle_indexes:
             new_particle_cloud.append(self.particle_cloud[i])
+
+        print(new_particle_indexes)
         
         self.particle_cloud = new_particle_cloud
 
@@ -270,20 +274,30 @@ class ParticleFilter:
 
                 # This is where the main logic of the particle filter is carried out
 
+                print("updating motion ...")
                 self.update_particles_with_motion_model()
+                print("motion finished!")
 
+                print("updating measurement ...")
                 self.update_particle_weights_with_measurement_model(data)
+                print("measurement finished!")
 
+                print("normalizing ...")
                 self.normalize_particles()
+                print("normalizing finished!")
 
+                print("resampling ...")
                 self.resample_particles()
+                print("resampling finished!")
 
+                print("estimating robot pose ...")
                 self.update_estimated_robot_pose()
+                print("est. robot pose finished!")
 
+                print("publishing ...")
                 self.publish_particle_cloud()
                 self.publish_estimated_robot_pose()
-
-                self.likelihood_field = LikelihoodField()
+                print("est. robot pose published!")
 
                 self.odom_pose_last_motion_update = self.odom_pose
 
@@ -300,19 +314,27 @@ class ParticleFilter:
             tot_y += p.pose.position.y
             tot_yaw += get_yaw_from_pose(p.pose)
         
-        self.robot_estimate.pose.position.x = tot_x / self.num_particles
-        self.robot_estimate.pose.position.y = tot_y / self.num_particles
+        self.robot_estimate.position.x = tot_x / self.num_particles
+        self.robot_estimate.position.y = tot_y / self.num_particles
         q = quaternion_from_euler(0.0, 0.0, tot_yaw / self.num_particles)
-        self.robot_estimate.pose.orientation.x = q[0]
-        self.robot_estimate.pose.orientation.y = q[1]
-        self.robot_estimate.pose.orientation.z = q[2]
-        self.robot_estimate.pose.orientation.w = q[3]
+        self.robot_estimate.orientation.x = q[0]
+        self.robot_estimate.orientation.y = q[1]
+        self.robot_estimate.orientation.z = q[2]
+        self.robot_estimate.orientation.w = q[3]
             
 
     def update_particle_weights_with_measurement_model(self, data):
         cardinal_direction_idxs = [0, 90, 180, 270]
         z_max = 0.0
         ranges = data.ranges
+
+        # testing
+        weights = []
+        for i in range(self.num_particles):
+            weights.append(self.particle_cloud[i].w)
+        print(weights)
+        # testing
+
         for i in range(self.num_particles):
             q = 1
             x = self.particle_cloud[i].pose.position.x
@@ -327,6 +349,14 @@ class ParticleFilter:
                     q = q * compute_prob_zero_centered_gaussian(dist, 0.2)
             
             self.particle_cloud[i].w = q
+        # testing
+        weights_ = []
+        for i in range(self.num_particles):
+            weights_.append(self.particle_cloud[i].w)
+        print(weights_)
+        # testing
+
+        
         
     def update_particles_with_motion_model(self):
 
