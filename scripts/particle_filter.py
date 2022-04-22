@@ -85,7 +85,7 @@ class ParticleFilter:
         self.map = OccupancyGrid()
 
         # the number of particles used in the particle filter
-        self.num_particles = 100
+        self.num_particles = 1
 
         # initialize the particle cloud array
         self.particle_cloud = []
@@ -139,7 +139,8 @@ class ParticleFilter:
 
         x_list = draw_random_sample(np.arange(x_lower, x_upper + resol, resol), None, self.num_particles)
         y_list = draw_random_sample(np.arange(y_lower, y_upper + resol, resol), None, self.num_particles)
-        yaw_list = draw_random_sample(np.arange(0, 2 * math.pi, math.pi/180), None, self.num_particles)
+        yaw_list = [math.pi / 2]
+        #yaw_list = draw_random_sample(np.arange(0, 2 * math.pi, math.pi/180), None, self.num_particles)
 
         for i in range(self.num_particles):
             p = Pose()
@@ -172,6 +173,8 @@ class ParticleFilter:
         for i in range(self.num_particles):
             w_tot += self.particle_cloud[i].w
         
+        print("w_tot = ",w_tot)
+
         for i in range(self.num_particles):
             self.particle_cloud[i].w /= w_tot
 
@@ -346,15 +349,20 @@ class ParticleFilter:
                     x_trans = x + ranges[k] * math.cos(yaw + k)
                     y_trans = y + ranges[k] * math.sin(yaw + k)
                     dist = self.likelihood_field.get_closest_obstacle_distance(x_trans, y_trans)
-                    q = q * compute_prob_zero_centered_gaussian(dist, 0.2)
+                    if dist == np.float('nan'):
+                        continue
+                    else:
+                        q = q * compute_prob_zero_centered_gaussian(dist, 0.2)
             
             self.particle_cloud[i].w = q
+        '''
         # testing
         weights_ = []
         for i in range(self.num_particles):
             weights_.append(self.particle_cloud[i].w)
         print(weights_)
         # testing
+        '''
 
         
         
@@ -371,19 +379,23 @@ class ParticleFilter:
         old_yaw = get_yaw_from_pose(self.odom_pose_last_motion_update.pose)
         diff_x = curr_x - old_x
         diff_y = curr_y - old_y
+        dist = math.sqrt(diff_x * diff_x + diff_y * diff_y)
         diff_yaw = curr_yaw - old_yaw
 
         # TODO need noise
 
         for i in range(self.num_particles):
-            self.particle_cloud[i].pose.position.x += diff_x
-            self.particle_cloud[i].pose.position.y += diff_y
-            new_yaw = get_yaw_from_pose(self.odom_pose.pose) + diff_yaw
-            q = quaternion_from_euler(0.0, 0.0, new_yaw)
+            print(self.particle_cloud[i].pose.position.x, self.particle_cloud[i].pose.position.y)
+            i_old_yaw = get_yaw_from_pose(self.particle_cloud[i].pose)
+            self.particle_cloud[i].pose.position.x += math.cos(i_old_yaw + math.pi/2) * dist
+            self.particle_cloud[i].pose.position.y += math.sin(i_old_yaw + math.pi/2) * dist
+            i_new_yaw = i_old_yaw + diff_yaw
+            q = quaternion_from_euler(0.0, 0.0, i_new_yaw)
             self.particle_cloud[i].pose.orientation.x = q[0]
             self.particle_cloud[i].pose.orientation.y = q[1]
             self.particle_cloud[i].pose.orientation.z = q[2]
             self.particle_cloud[i].pose.orientation.w = q[3]
+            print(self.particle_cloud[i].pose.position.x, self.particle_cloud[i].pose.position.y)
 
 
 if __name__=="__main__":
