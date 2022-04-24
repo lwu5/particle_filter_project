@@ -35,7 +35,7 @@ Name: Suha Chang, Liuhao Wu
 - **Code Description**: We use `draw_random_sample()` to generate particles for our new particle cloud randomly with their weights as probabilities. What the `draw_random_sample()` does is essentailly calling python function `random.choices()` to draws a random sample of n elements from a given list of choices and their specified probabilities / weights. During the resampling step, we let the list of choices to be every particle in the old cloud and use particles' weights as probabilities, and the total number of particles in the old and new cloud remains the same. The function `draw_random_sample()` would return a list of indexes of particles in the old cloud and we create new particles for our new cloud based on mapping of this index list and partciles in the old cloud. Finally, we replace the old particle cloud with our new particle cloud.
 
 5. **Incorporation of noise**
-- **Code Location**: Used the python function `random.gauss()` to generate noises in `update_particles_with_motion_model()`
+- **Code Location**: Incorporated the python function `random.gauss()` to `update_particles_with_motion_model()`
 - **Code Description**: We feed `random.gauss()` 0 as mean and 0.1 as standard deviation to get a random gaussian distribution number to move particles' x and y values with a random noise mostly within `[-0.1, 0.1]`. We feed `random.gauss()` 0 as mean and pi/75 as standard deviation to get a random gaussian distribution number to move particles' yaw values with a random noise mostly within `[-pi/75, pi/75]`.
 
 6. **Updating estimated robot pose**
