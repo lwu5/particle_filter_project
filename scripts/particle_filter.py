@@ -343,7 +343,7 @@ class ParticleFilter:
         # for each particle, based on the likelihood field, we'll update its weight
 
         # cardinal directions of particles we take into account
-        cardinal_direction_idxs = [0, 45, 90, 135, 180, 225, 270, 315]
+        direction_idxs = [0, 45, 90, 135, 180, 225, 270, 315]
         z_max = 0.0
         ranges = data.ranges
 
@@ -353,7 +353,7 @@ class ParticleFilter:
             y = self.particle_cloud[i].pose.position.y
             yaw = get_yaw_from_pose(self.particle_cloud[i].pose)
             
-            for k in cardinal_direction_idxs:
+            for k in direction_idxs:
                 if ranges[k] != z_max: # if laser finds obstable 
                     x_trans = x + ranges[k] * math.cos(yaw + k)
                     y_trans = y + ranges[k] * math.sin(yaw + k)
