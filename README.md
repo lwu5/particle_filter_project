@@ -11,7 +11,7 @@ Name: Suha Chang, Liuhao Wu
 
 ## Behavior
 
-- 
+- TODO Gif
 
 ## High-Level Description
 
@@ -43,8 +43,8 @@ Name: Suha Chang, Liuhao Wu
 - **Code Description**: We simply interate through every particle in the cloud to calculate the weighted average in terms of x, y, and yaw and convert yaw to quaternion before assign them to robot's estimated pose. 
 
 7. **Optimization of parameters**
-- **Code Location**: 
-- **Code Description**: 
+- **Code Location**: TODO
+- **Code Description**: TODO
 
 ## Challenges
 
