@@ -84,7 +84,7 @@ class ParticleFilter:
         self.map = OccupancyGrid()
 
         # the number of particles used in the particle filter
-        self.num_particles = 1000
+        self.num_particles = 2000
 
         # initialize the particle cloud array
         self.particle_cloud = []
@@ -343,7 +343,7 @@ class ParticleFilter:
         # for each particle, based on the likelihood field, we'll update its weight
 
         # cardinal directions of particles we take into account
-        direction_idxs = [0, 45, 90, 135, 180, 225, 270, 315]
+        direction_idxs = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 359]
         z_max = 0.0
         ranges = data.ranges
 
@@ -393,9 +393,9 @@ class ParticleFilter:
         #   followed by rotating it by how much robot has rotated
         for i in range(self.num_particles):
             i_old_yaw = get_yaw_from_pose(self.particle_cloud[i].pose)
-            self.particle_cloud[i].pose.position.x += trans * math.cos(i_old_yaw + rot_1) + random.gauss(0, 0.1) # gaussian noise added
-            self.particle_cloud[i].pose.position.y += trans * math.sin(i_old_yaw + rot_1) + random.gauss(0, 0.1) # gaussian noise added
-            i_new_yaw = i_old_yaw + rot_1 + rot_2 + random.gauss(0, math.pi/75) # gaussian noise added
+            self.particle_cloud[i].pose.position.x += trans * math.cos(i_old_yaw + rot_1) + random.gauss(0, 0.15) # gaussian noise added
+            self.particle_cloud[i].pose.position.y += trans * math.sin(i_old_yaw + rot_1) + random.gauss(0, 0.15) # gaussian noise added
+            i_new_yaw = i_old_yaw + rot_1 + rot_2 + random.gauss(0, math.pi/60) # gaussian noise added
             q = quaternion_from_euler(0.0, 0.0, i_new_yaw)
             self.particle_cloud[i].pose.orientation.x = q[0]
             self.particle_cloud[i].pose.orientation.y = q[1]
