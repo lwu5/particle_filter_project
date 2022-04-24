@@ -15,8 +15,8 @@ Name: Suha Chang, Liuhao Wu
 
 ## Main Steps Code Explanation
 1. Initialization of particle cloud
-- **Code Location**: 
-- **Code Description**: 
+- **Code Location**: Implemented with function `initialize_particle_cloud()`
+- **Code Description**: We first access the map's resolution and boundaries using `get_obstacle_bounding_box()` in the `likelihood_field.py`. Then we use those information to generate particles' x, y, and yaw values randomly within the map using our own `draw_random_sample()`. What the `draw_random_sample()` does is essentailly calling python function `random.choices()` to draws a random sample of n elements from a given list of choices and their specified probabilities / weights. During the implementation, we let the list of choices to be every single resolution in map in terms of x and y and every integer degree in `[0,360)` for yaw and set every resolution to be equal probability. We use those randomly generated x, y, and yaw values to create particles with every particle's weight set to `1`. Before we publish the partcile cloud, we also normalize all particle weights so that the probability sums to `1`.
 
 2. Movement model
 - **Code Location**: 
@@ -50,12 +50,12 @@ Name: Suha Chang, Liuhao Wu
 
 ## Future Work
 
-- 
+- TODO
 
 ## Takeaways
 
-1. a
-2. 
+1. TODO
+2. TODO
 
 ---
 
