@@ -2,6 +2,63 @@
 
 Name: Suha Chang, Liuhao Wu
 
+---
+
+# Final Write-Up 4/24
+## Objectives Description
+
+- The goal of this project was to solve the problem of robot localization by implementing the particle filter algorithm with Monte Carlo localization. The particle filter uses information from a map and measurements from the robot’s odometry data to locate the robot in space, and it uses probabilistic sampling methods to update a belief of the robot’s position. 
+
+## High-Level Description
+
+- We solved the problem of robot localization by implementing the particle filter algorithm with Monte Carlo Localization. This algorithm first randomly distributes many different particles (which each represent a guess about where a robot is placed/oriented) throughout a map of a maze environment that we collected using the SLAM method. As the robot moves around and senses obstacles in the maze, the particles also move around like the robot and update their own hypothetical laser scan measurements. The algorithm then compares the robot’s sensor measurements to what different particles are sensing in their vicinity; particles that more closely match what the robot is sensing are weighted more highly as being candidates for the robot’s true location. Particles are then probabilistically resampled with replacement depending on their weight. With every iteration of the model it is expected that a particle cloud which likely consists of particles that had larger weights (representing the best estimates of the robot’s location) will converge onto the robot’s true location. 
+
+## Main Steps Code Explanation
+1. Initialization of particle cloud
+- **Code Location**: 
+- **Code Description**: 
+
+2. Movement model
+- **Code Location**: 
+- **Code Description**: 
+
+3. Measurement model
+- **Code Location**: 
+- **Code Description**: 
+
+4. Resampling
+- **Code Location**: 
+- **Code Description**: 
+
+5. Incorporation of noise
+- **Code Location**: 
+- **Code Description**: 
+
+6. Updating estimated robot pose
+- **Code Location**: 
+- **Code Description**: 
+
+7. Optimization of parameters
+- **Code Location**: 
+- **Code Description**: 
+
+## Challenges
+
+- Some initial challenges we faced was figuring out the motion model and how to make the particle move like the robot, but with respect to its own orientation. In order to understand what was going wrong, we overcame our issues by drawing out lots of diagrams and doing careful testing with small numbers of particles to check their position and orientation in space. This approach solidified our intuitions for what was going wrong and helped us better understand the motion model we ultimately implemented (the one suggested on Slack). 
+- Another challenge we faced was trying to figure out why our weights were becoming very small and ultimately breaking our particle filter model since it would only resample one particle when all the weights had gone to zero. With the help of TAs we found that it was because we had not made a deep copy of the particles when resampling and that was potentially severely impacting the weight updating of particles that had been resampled more than once. This mistake taught us a lesson about making sure that lists updated in object oriented programming (for future projects) should not include these shallow copies.
+- One challenge we also faced was modulating the addition of noise and optimizing those parameters. We were stumped for a bit by a lot of our particles seemingly disappearing from the map, but we realized through debugging that it was because we were resampling so many of the same particles since the noise was being implemented in the wrong place. Through trial and error we were able to find the right places to insert noise and also try out a bunch of different values to make the cloud converge to the optimal position of the robot
+
+## Future Work
+
+- 
+
+## Takeaways
+
+1. a
+2. 
+
+---
+
 # Implementation Plan 4/12
 ## Implementation + Testing
 1. How you will initialize your particle cloud (`initialize_particle_cloud`)?
@@ -33,6 +90,8 @@ Name: Suha Chang, Liuhao Wu
 
 - **Implementation**: We will generate artificial Gaussian noise and implement it in the measurement of the particle’s positions after resampling the particles in the cloud. 
 - **Testing**: We will first confirm that particles are moving in the expected direction after the addition of noise (likely with large noise values to see the difference more clearly) and then fine tune the parameters of the Gaussian noise generator to make sure that we are not jittering the particle positions too far from their original position such that the particle cloud is compromised and the estimated position of the robot is very different from before the addition of noise. 
+
+---
 
 ## Timeline
 - initialize_particle_cloud:  4/17
