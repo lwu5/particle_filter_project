@@ -4,7 +4,7 @@ Name: Suha Chang, Liuhao Wu
 
 ---
 
-# Final Write-Up 4/24
+# Final Write-Up 4/24/2022
 ## Objectives Description
 
 - The goal of this project was to solve the problem of robot localization by implementing the particle filter algorithm with Monte Carlo localization. The particle filter uses information from a map and measurements from the robot’s odometry data to locate the robot in space, and it uses probabilistic sampling methods to update a belief of the robot’s position. 
@@ -59,7 +59,7 @@ Name: Suha Chang, Liuhao Wu
 
 ---
 
-# Implementation Plan 4/12
+# Implementation Plan 4/12/2022
 ## Implementation + Testing
 1. How you will initialize your particle cloud (`initialize_particle_cloud`)?
 
