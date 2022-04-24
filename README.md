@@ -43,8 +43,8 @@ Name: Suha Chang, Liuhao Wu
 - **Code Description**: We simply interate through every particle in the cloud to calculate the weighted average in terms of x, y, and yaw and convert yaw to quaternion before assign them to robot's estimated pose. 
 
 7. **Optimization of parameters**
-- **Code Location**: TODO
-- **Code Description**: TODO
+- **Code Location**: We optimized the following parameters: particle numbers (`self.num_particles` in `ParticleFilter` class), mean and standard deviations for Gaussian noises (`random.gauss` in `update_particles_with_motion_model()` function), standard deviations for gaussian probability (`compute_prob_zero_centered_gaussian()` in `update_particle_weights_with_measurement_model()` function), and number of ranges we taken into account when updating particle weights (`direction_idxs` in `update_particle_weights_with_measurement_model()` function).
+- **Code Description**: For particle numbers, we realized that too many particles can make program laggy and give timing error but too less particles drop the algorithm's accuracy, so we found particle 1000 is an acceptable number. For mean and standard deviations for Gaussian noises and standard deviations for gaussian probability, we just tried a bunch of different numbers for optimization. For the number of ranges we taken into account when updating particle weights, we realized that if we only consider four cardinal directions, the accuracy is a bit low; but if we consider all 360 degrees, the program becomes too computationally expensive; so we ended up taking eight directions into consideration.
 
 ## Challenges
 
