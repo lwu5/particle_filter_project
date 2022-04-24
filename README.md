@@ -14,31 +14,31 @@ Name: Suha Chang, Liuhao Wu
 - We solved the problem of robot localization by implementing the particle filter algorithm with Monte Carlo Localization. This algorithm first randomly distributes many different particles (which each represent a guess about where a robot is placed/oriented) throughout a map of a maze environment that we collected using the SLAM method. As the robot moves around and senses obstacles in the maze, the particles also move around like the robot and update their own hypothetical laser scan measurements. The algorithm then compares the robot’s sensor measurements to what different particles are sensing in their vicinity; particles that more closely match what the robot is sensing are weighted more highly as being candidates for the robot’s true location. Particles are then probabilistically resampled with replacement depending on their weight. With every iteration of the model it is expected that a particle cloud which likely consists of particles that had larger weights (representing the best estimates of the robot’s location) will converge onto the robot’s true location. 
 
 ## Main Steps Code Explanation
-1. Initialization of particle cloud
+1. **Initialization of particle cloud**
 - **Code Location**: Implemented with function `initialize_particle_cloud()`
 - **Code Description**: We first access the map's resolution and boundaries using `get_obstacle_bounding_box()` in the `likelihood_field.py`. Then we use those information to generate particles' x, y, and yaw values randomly within the map using our own `draw_random_sample()`. What the `draw_random_sample()` does is essentailly calling python function `random.choices()` to draws a random sample of n elements from a given list of choices and their specified probabilities / weights. During the implementation, we let the list of choices to be every single resolution in map in terms of x and y and every integer degree in `[0,360)` for yaw and set every resolution to be equal probability. We use those randomly generated x, y, and yaw values to create particles with every particle's weight set to `1`. Before we publish the partcile cloud, we also normalize all particle weights so that the probability sums to `1`.
 
-2. Movement model
+2. **Movement model**
+- **Code Location**: Implemented with function `update_particles_with_motion_model()`
+- **Code Description**: We first get robot's current and previous poses (x, y, and yaw). With this information, we can calculate robot's motion changes in terms of x, y, and yaw and in terms of a rotation followed by translation and a second rotation. Then we use a loop to update each particle's pose to match robot's motion change (using the algorithm given on the slack): translate each particle by distance traveled first, followed by rotating it by how much robot has rotated. Note, here we add Gaussian noise to each particle's x, y, and yaw values using python `random.gauss()` function and we also convert the new yaw for each partcle back to quaternion.
+
+3. **Measurement model**
+- **Code Location**: Implemented with function `update_particle_weights_with_measurement_model()`
+- **Code Description**: We use a nested loop to interate through every particle in the cloud and each of the eight angles (i.e., `[0, 45, 90, 135, 180, 225, 270, 315]`). Using the `get_closest_obstacle_distance` function from `likelihood_field.py`, we find the distance to the closest obstacle for each particle in designated directions and with the measurement model, we can calculate each particle's weights. Note, if at some direction, a particle seems to be outside the map boundaries (i.e., `get_closest_obstacle_distance` returns `nan`), we have its weight timed by a small number to decreate its probability to get resampled later.
+
+4. **Resampling**
 - **Code Location**: 
 - **Code Description**: 
 
-3. Measurement model
+5. **Incorporation of noise**
 - **Code Location**: 
 - **Code Description**: 
 
-4. Resampling
+6. **Updating estimated robot pose**
 - **Code Location**: 
 - **Code Description**: 
 
-5. Incorporation of noise
-- **Code Location**: 
-- **Code Description**: 
-
-6. Updating estimated robot pose
-- **Code Location**: 
-- **Code Description**: 
-
-7. Optimization of parameters
+7. **Optimization of parameters**
 - **Code Location**: 
 - **Code Description**: 
 
