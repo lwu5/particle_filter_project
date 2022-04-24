@@ -9,6 +9,10 @@ Name: Suha Chang, Liuhao Wu
 
 - The goal of this project was to solve the problem of robot localization by implementing the particle filter algorithm with Monte Carlo localization. The particle filter uses information from a map and measurements from the robot’s odometry data to locate the robot in space, and it uses probabilistic sampling methods to update a belief of the robot’s position. 
 
+## Behavior
+
+- 
+
 ## High-Level Description
 
 - We solved the problem of robot localization by implementing the particle filter algorithm with Monte Carlo Localization. This algorithm first randomly distributes many different particles (which each represent a guess about where a robot is placed/oriented) throughout a map of a maze environment that we collected using the SLAM method. As the robot moves around and senses obstacles in the maze, the particles also move around like the robot and update their own hypothetical laser scan measurements. The algorithm then compares the robot’s sensor measurements to what different particles are sensing in their vicinity; particles that more closely match what the robot is sensing are weighted more highly as being candidates for the robot’s true location. Particles are then probabilistically resampled with replacement depending on their weight. With every iteration of the model it is expected that a particle cloud which likely consists of particles that had larger weights (representing the best estimates of the robot’s location) will converge onto the robot’s true location. 
@@ -16,7 +20,7 @@ Name: Suha Chang, Liuhao Wu
 ## Main Steps Code Explanation
 1. **Initialization of particle cloud**
 - **Code Location**: Implemented with function `initialize_particle_cloud()`
-- **Code Description**: We first access the map's resolution and boundaries using `get_obstacle_bounding_box()` in the `likelihood_field.py`. Then we use those information to generate particles' x, y, and yaw values randomly within the map using our own `draw_random_sample()`. What the `draw_random_sample()` does is essentailly calling python function `random.choices()` to draws a random sample of n elements from a given list of choices and their specified probabilities / weights. During the implementation, we let the list of choices to be every single resolution in map in terms of x and y and every integer degree in `[0,360)` for yaw and set every resolution to be equal probability. We use those randomly generated x, y, and yaw values to create particles with every particle's weight set to `1`. Before we publish the partcile cloud, we also normalize all particle weights so that the probability sums to `1`.
+- **Code Description**: We first access the map's resolution and boundaries using `get_obstacle_bounding_box()` in the `likelihood_field.py`. Then we use those information to generate particles' x, y, and yaw values randomly within the map using our own `draw_random_sample()`. What the `draw_random_sample()` does is essentailly calling python function `random.choices()` to draws a random sample of n elements from a given list of choices and their specified probabilities / weights. During the initialization, we let the list of choices to be every single resolution in map in terms of x and y and every integer degree in `[0,360)` for yaw and set every resolution to be equal probability. We use those randomly generated x, y, and yaw values to create particles with every particle's weight set to `1`. Before we publish the partcile cloud, we also normalize all particle weights so that all probabilities sum to `1`.
 
 2. **Movement model**
 - **Code Location**: Implemented with function `update_particles_with_motion_model()`
@@ -27,16 +31,16 @@ Name: Suha Chang, Liuhao Wu
 - **Code Description**: We use a nested loop to interate through every particle in the cloud and each of the eight angles (i.e., `[0, 45, 90, 135, 180, 225, 270, 315]`). Using the `get_closest_obstacle_distance` function from `likelihood_field.py`, we find the distance to the closest obstacle for each particle in designated directions and with the measurement model, we can calculate each particle's weights. Note, if at some direction, a particle seems to be outside the map boundaries (i.e., `get_closest_obstacle_distance` returns `nan`), we have its weight timed by a small number to decreate its probability to get resampled later.
 
 4. **Resampling**
-- **Code Location**: 
-- **Code Description**: 
+- **Code Location**: Implemented with function `resample_particles()`
+- **Code Description**: We use `draw_random_sample()` to generate particles for our new particle cloud randomly with their weights as probabilities. What the `draw_random_sample()` does is essentailly calling python function `random.choices()` to draws a random sample of n elements from a given list of choices and their specified probabilities / weights. During the resampling step, we let the list of choices to be every particle in the old cloud and use particles' weights as probabilities, and the total number of particles in the old and new cloud remains the same. The function `draw_random_sample()` would return a list of indexes of particles in the old cloud and we create new particles for our new cloud based on mapping of this index list and partciles in the old cloud. Finally, we replace the old particle cloud with our new particle cloud.
 
 5. **Incorporation of noise**
-- **Code Location**: 
-- **Code Description**: 
+- **Code Location**: Used the python function `random.gauss()` to generate noises in `update_particles_with_motion_model()`
+- **Code Description**: We feed `random.gauss()` 0 as mean and 0.1 as standard deviation to get a random gaussian distribution number to move particles' x and y values with a random noise mostly within `[-0.1, 0.1]`. We feed `random.gauss()` 0 as mean and pi/75 as standard deviation to get a random gaussian distribution number to move particles' yaw values with a random noise mostly within `[-pi/75, pi/75]`.
 
 6. **Updating estimated robot pose**
-- **Code Location**: 
-- **Code Description**: 
+- **Code Location**: Implemented with function `update_estimated_robot_pose()`
+- **Code Description**: We simply interate through every particle in the cloud to calculate the weighted average in terms of x, y, and yaw and convert yaw to quaternion before assign them to robot's estimated pose. 
 
 7. **Optimization of parameters**
 - **Code Location**: 
