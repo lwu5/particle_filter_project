@@ -54,7 +54,7 @@ Name: Suha Chang, Liuhao Wu
 
 ## Future Work
 
-- TODO
+- If we had more time, we would want to improve the localization so that it converges faster. We were generally limited in how many particles we could include in the model because we got the error that rviz’s time goes backwards if we included too many. Therefore we would like to be able to increase the number of particles to see how well it can perform with more. Also we would want to spend more time further optimizing parameters like noise and the standard deviations for likelihood so that the robot can be accurately localized in space given this larger particle amount. It would also be cool to be able to obtain different maps and test the localization ability in different environments that are not so narrow or similar like the maze. 
 
 ## Takeaways
 
