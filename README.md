@@ -11,8 +11,10 @@ Name: Suha Chang, Liuhao Wu
 
 ## Behavior
 
-- TODO Gif
-- https://user-images.githubusercontent.com/59663733/165005958-f4cf3917-3f26-4a25-a437-31bbd18c029d.mov
+- https://user-images.githubusercontent.com/59663733/165006261-a7e43fef-a816-493f-aea0-e0860cc4aed0.mp4
+
+- https://user-images.githubusercontent.com/59663733/165006340-0f6fdf12-74ef-4554-b17f-afd8ba6c8a84.mp4
+
 
 ## High-Level Description
 
