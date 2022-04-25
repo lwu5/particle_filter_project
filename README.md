@@ -12,6 +12,7 @@ Name: Suha Chang, Liuhao Wu
 ## Behavior
 
 - TODO Gif
+- 
 
 ## High-Level Description
 
@@ -24,11 +25,11 @@ Name: Suha Chang, Liuhao Wu
 
 2. **Movement model**
 - **Code Location**: Implemented with function `update_particles_with_motion_model()`
-- **Code Description**: We first get robot's current and previous poses (x, y, and yaw). With this information, we can calculate robot's motion changes in terms of x, y, and yaw and in terms of a rotation followed by translation and a second rotation. Then we use a loop to update each particle's pose to match robot's motion change (using the algorithm given on the slack): translate each particle by distance traveled first, followed by rotating it by how much robot has rotated. Note, here we add Gaussian noise to each particle's x, y, and yaw values using python `random.gauss()` function and we also convert the new yaw for each partcle back to quaternion.
+- **Code Description**: We first get robot's current and previous poses (x, y, and yaw). With this information, we can calculate robot's motion changes in terms of x, y, and yaw and in terms of a rotation followed by translation and a second rotation. Then we use a loop to update each particle's pose to match robot's motion change (using the algorithm given on the slack): translate each particle by distance traveled first, followed by rotating it by how much robot has rotated. Note, here we add Gaussian noise to each particle's x and y values using python `random.gauss()` function and we do not add noise for yaw because we realized through our testing that the estimation of robot's pose performs better without adding noise to yaw than with noises. We convert the new yaw for each partcle back to quaternion at the end.
 
 3. **Measurement model**
 - **Code Location**: Implemented with function `update_particle_weights_with_measurement_model()`
-- **Code Description**: We use a nested loop to interate through every particle in the cloud and each of the eight angles (i.e., `[0, 45, 90, 135, 180, 225, 270, 315]`). Using the `get_closest_obstacle_distance` function from `likelihood_field.py`, we find the distance to the closest obstacle for each particle in designated directions and with the measurement model, we can calculate each particle's weights. Note, if at some direction, a particle seems to be outside the map boundaries (i.e., `get_closest_obstacle_distance` returns `nan`), we have its weight timed by a small number to decreate its probability to get resampled later.
+- **Code Description**: We use a nested loop to interate through every particle in the cloud and each of the eight directions (i.e., `[0, 45, 90, 135, 180, 225, 270, 315]`). Using the `get_closest_obstacle_distance` function from `likelihood_field.py`, we find the distance to the closest obstacle for each particle in designated directions and with the measurement model, we can calculate each particle's weights. Note, if at some direction, a particle seems to be outside the map boundaries (i.e., `get_closest_obstacle_distance` returns `nan`), we have its weight timed by a small number to decreate its probability to get resampled later.
 
 4. **Resampling**
 - **Code Location**: Implemented with function `resample_particles()`
@@ -36,7 +37,7 @@ Name: Suha Chang, Liuhao Wu
 
 5. **Incorporation of noise**
 - **Code Location**: Incorporated the python function `random.gauss()` to `update_particles_with_motion_model()`
-- **Code Description**: We feed `random.gauss()` 0 as mean and 0.1 as standard deviation to get a random gaussian distribution number to move particles' x and y values with a random noise mostly within `[-0.1, 0.1]`. We feed `random.gauss()` 0 as mean and pi/75 as standard deviation to get a random gaussian distribution number to move particles' yaw values with a random noise mostly within `[-pi/75, pi/75]`.
+- **Code Description**: We feed `random.gauss()` 0 as mean and 0.1 as standard deviation to get a random gaussian distribution number to move particles' x and y values with a random noise mostly within `[-0.1, 0.1]`. We do not add noise for yaw because we realized through our testing that the estimation of robot's pose performs better without adding noise to yaw than with noises.
 
 6. **Updating estimated robot pose**
 - **Code Location**: Implemented with function `update_estimated_robot_pose()`
@@ -44,13 +45,13 @@ Name: Suha Chang, Liuhao Wu
 
 7. **Optimization of parameters**
 - **Code Location**: We optimized the following parameters: particle numbers (`self.num_particles` in `ParticleFilter` class), mean and standard deviations for Gaussian noises (`random.gauss` in `update_particles_with_motion_model()` function), standard deviations for gaussian probability (`compute_prob_zero_centered_gaussian()` in `update_particle_weights_with_measurement_model()` function), and number of ranges we taken into account when updating particle weights (`direction_idxs` in `update_particle_weights_with_measurement_model()` function).
-- **Code Description**: For particle numbers, we realized that too many particles can make program laggy and give timing error but too less particles drop the algorithm's accuracy, so we found particle 1000 is an acceptable number. For mean and standard deviations for Gaussian noises and standard deviations for gaussian probability, we just tried a bunch of different numbers for optimization. For the number of ranges we taken into account when updating particle weights, we realized that if we only consider four cardinal directions, the accuracy is a bit low; but if we consider all 360 degrees, the program becomes too computationally expensive; so we ended up taking eight directions into consideration.
+- **Code Description**: For particle numbers, we realized that too many particles can make program laggy and give timing error but too less particles drop the algorithm's accuracy, so we found particle 5,000 is an acceptable number. For mean and standard deviations for Gaussian noises and standard deviations for gaussian probability, we just tried a bunch of different numbers for optimization. We do not add gaussian noise for yaw because we realized through our testing that the estimation of robot's pose performs better without adding noise to yaw than with noises. For the number of ranges we taken into account when updating particle weights, we realized that if we only consider four cardinal directions, the accuracy is a bit low; but if we consider all 360 degrees, the program becomes too computationally expensive; so we ended up taking eight directions into consideration.
 
 ## Challenges
 
 - Some initial challenges we faced was figuring out the motion model and how to make the particle move like the robot, but with respect to its own orientation. In order to understand what was going wrong, we overcame our issues by drawing out lots of diagrams and doing careful testing with small numbers of particles to check their position and orientation in space. This approach solidified our intuitions for what was going wrong and helped us better understand the motion model we ultimately implemented (the one suggested on Slack). 
 - Another challenge we faced was trying to figure out why our weights were becoming very small and ultimately breaking our particle filter model since it would only resample one particle when all the weights had gone to zero. With the help of TAs we found that it was because we had not made a deep copy of the particles when resampling and that was potentially severely impacting the weight updating of particles that had been resampled more than once. This mistake taught us a lesson about making sure that lists updated in object oriented programming (for future projects) should not include these shallow copies.
-- One challenge we also faced was modulating the addition of noise and optimizing those parameters. We were stumped for a bit by a lot of our particles seemingly disappearing from the map, but we realized through debugging that it was because we were resampling so many of the same particles since the noise was being implemented in the wrong place. Through trial and error we were able to find the right places to insert noise and also try out a bunch of different values to make the cloud converge to the optimal position of the robot
+- One challenge we also faced was modulating the addition of noise and optimizing those parameters. We were stumped for a bit by a lot of our particles seemingly disappearing from the map, but we realized through debugging that it was because we were resampling so many of the same particles since the noise was being implemented in the wrong place. Through trial and error we were able to find the right places to insert noise and also try out a bunch of different values to make the cloud converge to the optimal position of the robot.
 
 ## Future Work
 
@@ -58,8 +59,9 @@ Name: Suha Chang, Liuhao Wu
 
 ## Takeaways
 
-1. TODO
+1. One key takeaway from this project was learning how to manipulate variables in different coordinate systems and thinking about how to transform between online maps and real-life spaces. Managing all the different conversions from the data sent from the robot and testing how they are oriented relative to the RViz environment.
 2. TODO
+3. Another key takeaway was thinking about how to work with the limitation of hardware. Our computers became super laggy when we set particle cloud size to 10,000 and took too many lazer directions into account for updating particles with measurement models. This forces us to learn to find a balance between performance and hardware limitation. We have to spend time testing what number of particles and directions our computers can handle and the program performs well.
 
 ---
 
