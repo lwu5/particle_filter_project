@@ -342,11 +342,9 @@ class ParticleFilter:
     def update_particle_weights_with_measurement_model(self, data):
         # for each particle, based on the likelihood field, we'll update its weight
 
-        # cardinal directions of particles we take into account
-        #direction_idxs = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 359]
+        # directions of particles we take into account
         direction_idxs = [0, 45, 90, 135, 180, 225, 270, 315]
-        #direction_idxs = [0,30,60,90,120,150,180,210,240,270,300,330]
-        #direction_idxs = [0,90,180,270]
+        
         z_max = 0.0
         ranges = data.ranges
 
@@ -398,7 +396,8 @@ class ParticleFilter:
             i_old_yaw = get_yaw_from_pose(self.particle_cloud[i].pose)
             self.particle_cloud[i].pose.position.x += trans * math.cos(i_old_yaw + rot_1) + random.gauss(0, 0.1) # gaussian noise added
             self.particle_cloud[i].pose.position.y += trans * math.sin(i_old_yaw + rot_1) + random.gauss(0, 0.1) # gaussian noise added
-            i_new_yaw = i_old_yaw + rot_1 + rot_2 #+ random.gauss(0, math.pi/180) # gaussian noise added
+            i_new_yaw = i_old_yaw + rot_1 + rot_2 # we do not add noise here because we realized through our testing that
+                                                  #    estimation performs better without adding noise to yaw than with noises
             q = quaternion_from_euler(0.0, 0.0, i_new_yaw)
             self.particle_cloud[i].pose.orientation.x = q[0]
             self.particle_cloud[i].pose.orientation.y = q[1]
