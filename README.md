@@ -12,7 +12,7 @@ Name: Suha Chang, Liuhao Wu
 ## Behavior
 
 - TODO Gif
-- 
+- https://user-images.githubusercontent.com/59663733/165005958-f4cf3917-3f26-4a25-a437-31bbd18c029d.mov
 
 ## High-Level Description
 
