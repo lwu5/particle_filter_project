@@ -11,7 +11,7 @@ Name: Suha Chang, Liuhao Wu
 
 ## Behavior
 
-Below, we provide a demo for this particle localization algorithm. We recorded this demo in two ways: one view includes both the robot's movement in maze and Rviz view; the other only recorded Rviz view directly from computer with higher clearity. We also recorded a bag with the following topics: `/map, /scan, /cmd_vel, /particle_cloud, /estimated_robot_pose` and the bag's location:  `bag/particle_fileter.bag`.
+Below, we provide a demo for this particle localization algorithm. We recorded this demo in two ways: one view includes both the robot's movement in maze and Rviz view; the other only recorded Rviz view directly from computer with higher clearity. We also recorded a bag with the following topics: `/map`, `/scan`, `/cmd_vel`, `/particle_cloud`, `/estimated_robot_pose` and this is the (bag)'s location [https://github.com/lwu5/particle_filter_project/tree/main/bags].
 
 Note: Please discard the virtual turtlebot in the Rviz, it does not correctly reflect on the robot's position and movement in reality. Please refer to the demo video for the actually robot position and movement.
 
